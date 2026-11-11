@@ -1,0 +1,629 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Plugin recorte AVATARES BOB-BBOB</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a single working column — geometry + settings on top, drop zone, run bar, then the two report lists */
+:root{
+  --bg:#f3f4f6; --surface:#ffffff; --line:#d9dce3; --fg:#1b1f2a; --muted:#5d6475;
+  --accent:#1f4fd1; --accent-fg:#ffffff; --accent-soft:#e3eafc;
+  --warn:#a35a00; --warn-soft:#fff1dc; --bad:#b42323; --bad-soft:#fde6e6; --ok:#1d7a46;
+  --strip:rgba(214,40,40,.55); --img:#c9d3ea; --pad:#eef0f4;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12151c; --surface:#1a1e27; --line:#2c3240; --fg:#e7e9ee; --muted:#9aa2b4;
+  --accent:#6f95ff; --accent-fg:#0d1220; --accent-soft:#1d2945;
+  --warn:#f0a947; --warn-soft:#33260f; --bad:#ff7b7b; --bad-soft:#3a1717; --ok:#5fcf8f;
+  --strip:rgba(255,92,92,.6); --img:#34446b; --pad:#222836; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12151c; --surface:#1a1e27; --line:#2c3240; --fg:#e7e9ee; --muted:#9aa2b4;
+  --accent:#6f95ff; --accent-fg:#0d1220; --accent-soft:#1d2945;
+  --warn:#f0a947; --warn-soft:#33260f; --bad:#ff7b7b; --bad-soft:#3a1717; --ok:#5fcf8f;
+  --strip:rgba(255,92,92,.6); --img:#34446b; --pad:#222836; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.5}
+.wrap{max-width:1040px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:20px}
+h1{font-size:1.6rem;font-weight:600;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h2{font-size:1rem;font-weight:600;margin:0}
+.sub{color:var(--muted);margin:4px 0 0;max-width:68ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:14px;min-width:0;align-content:start}
+.grid2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+.steps{margin:0;padding-left:1.3em;display:grid;gap:6px;color:var(--fg)}
+.steps li::marker{font-family:var(--mono);color:var(--muted)}
+.mono,code{font-family:var(--mono);font-size:.88em;font-variant-numeric:tabular-nums}
+svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.geo-note{font-size:.88rem;color:var(--muted);margin:0}
+.geo-note.warn{color:var(--warn)}
+fieldset{border:0;margin:0;padding:0;display:grid;gap:10px}
+legend{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;margin-bottom:6px}
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px 14px}
+label.f{display:grid;gap:4px;font-size:.82rem;color:var(--muted)}
+input[type=number],select,input[type=color]{font:inherit;font-family:var(--mono);font-size:.9rem;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:100%;min-width:0}
+input[type=color]{padding:2px;height:34px}
+label.chk{display:flex;gap:8px;align-items:center;font-size:.88rem}
+details>summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"Mostrar";font-weight:400;font-size:.82rem;color:var(--accent)}
+details[open]>summary::after{content:"Ocultar"}
+details[open]>summary{margin-bottom:14px}
+.drop{border:2px dashed var(--line);border-radius:10px;padding:28px 18px;text-align:center;display:grid;gap:10px;justify-items:center;background:var(--surface);transition:border-color .15s,background .15s}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop strong{font-size:1.05rem}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button,.btn{font:inherit;font-weight:500;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:8px 14px;cursor:pointer}
+button:hover:not(:disabled){border-color:var(--accent)}
+button.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{display:grid;gap:2px;padding:10px 12px;border-radius:8px;background:var(--bg)}
+.stat b{font-family:var(--mono);font-size:1.4rem;font-weight:500;font-variant-numeric:tabular-nums}
+.stat span{font-size:.8rem;color:var(--muted)}
+.stat.bad b{color:var(--bad)} .stat.warn b{color:var(--warn)} .stat.ok b{color:var(--ok)}
+.bar{height:8px;border-radius:4px;background:var(--bg);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+.status{font-size:.88rem;color:var(--muted);margin:0}
+.list-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{font-family:var(--mono);font-size:.78rem;padding:2px 8px;border-radius:999px}
+.pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.warn{background:var(--warn-soft);color:var(--warn)}
+.tbl{overflow:auto;max-height:420px;border:1px solid var(--line);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{position:sticky;top:0;background:var(--surface);font-weight:600;font-size:.76rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.name{word-break:break-all}
+td canvas{display:block;border-radius:3px;background:var(--pad)}
+.empty{padding:18px;color:var(--muted);font-size:.9rem;text-align:center}
+.toast{font-size:.85rem;color:var(--ok)}
+.orig{font-size:.78rem;color:var(--muted)}
+.opt{font-size:.72rem;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-left:6px}
+.pill:not(.bad):not(.warn){background:var(--bg);color:var(--muted)}
+.geo-note.bad{color:var(--bad)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Recorte por lotes 392×536</h1>
+    <p class="sub">Sube cientos de imágenes de una vez. Se procesan en tu navegador, sin subir nada a ningún servidor, y al final descargas un ZIP con los resultados y un informe.</p>
+  </header>
+
+  <section class="grid2">
+    <div class="panel">
+      <h2>Qué hace con cada imagen</h2>
+      <ol class="steps" id="stepsList"></ol>
+    </div>
+    <div class="panel">
+      <h2>Geometría con una imagen de referencia</h2>
+      <div style="overflow-x:auto"><svg id="geo" role="img" aria-label="Esquema del recorte y del lienzo final"></svg></div>
+      <p class="geo-note" id="geoNote"></p>
+    </div>
+  </section>
+
+  <details class="panel" id="settings">
+    <summary>Parámetros</summary>
+    <div style="display:grid;gap:18px">
+      <fieldset><legend>1 · Comprobación de tamaño</legend>
+        <div class="fields">
+          <label class="f">Ancho requerido (px)<input type="number" id="reqW" value="425" min="1"></label>
+          <label class="f">Alto requerido (px)<input type="number" id="reqH" value="479" min="1"></label>
+        </div>
+        <label class="chk"><input type="checkbox" id="exact"> Exigir tamaño exacto (si no, vale cualquier imagen igual o mayor)</label>
+      </fieldset>
+      <fieldset><legend>2 · Recorte lateral y control del círculo</legend>
+        <div class="fields">
+          <label class="f">Recorte izquierda (px)<input type="number" id="cropL" value="17" min="0"></label>
+          <label class="f">Recorte derecha (px)<input type="number" id="cropR" value="17" min="0"></label>
+          <label class="f">Tolerancia de color<input type="number" id="tol" value="40" min="1" max="255"></label>
+          <label class="f">Píxeles mínimos para avisar<input type="number" id="minPx" value="10" min="1"></label>
+        </div>
+      </fieldset>
+      <fieldset><legend>3–4 · Escalado y lienzo final</legend>
+        <div class="fields">
+          <label class="f">Ancho final (px)<input type="number" id="outW" value="392" min="1"></label>
+          <label class="f">Alto del lienzo (px)<input type="number" id="outH" value="536" min="1"></label>
+          <label class="f">Margen inferior (px)<input type="number" id="bottom" value="55" min="0"></label>
+        </div>
+      </fieldset>
+      <fieldset><legend>5 · Salida</legend>
+        <div class="fields">
+          <label class="f">Formato<select id="fmt"><option value="png">PNG</option><option value="jpeg">JPG</option><option value="webp">WebP</option></select></label>
+          <label class="f">Fondo del lienzo<select id="bgMode"><option value="transparent">Transparente</option><option value="color">Color</option></select></label>
+          <label class="f">Color de fondo<input type="color" id="bgColor" value="#ffffff"></label>
+        </div>
+        <p class="geo-note">JPG no admite transparencia: si eliges JPG se usa el color de fondo.</p>
+      </fieldset>
+    </div>
+  </details>
+
+  <section class="panel" id="csvPanel">
+    <div class="list-head">
+      <h2>Renombrar con CSV <span class="opt">opcional</span></h2>
+      <label class="chk"><input type="checkbox" id="useCsv"> Activar</label>
+    </div>
+    <p class="geo-note">Cada imagen pasa a llamarse <span class="mono">ID avatar_NOMBRE</span> con los datos de su fila en el CSV. Si una imagen no tiene fila, conserva su nombre y aparece en la lista 3.</p>
+    <div id="csvBody" hidden style="display:grid;gap:12px">
+      <div class="row">
+        <button type="button" id="pickCsv">Cargar CSV</button>
+        <span class="status" id="csvInfo">Ningún CSV cargado</span>
+      </div>
+      <input type="file" id="csvIn" accept=".csv,.txt,text/csv" hidden>
+      <div class="fields" id="csvCols" hidden>
+        <label class="f">Columna que coincide con el nombre de la imagen<select id="colMatch"></select></label>
+        <label class="f">Columna ID avatar<select id="colId"></select></label>
+        <label class="f">Columna NOMBRE<select id="colName"></select></label>
+      </div>
+      <p class="geo-note" id="csvPreview"></p>
+    </div>
+  </section>
+
+  <section class="drop" id="drop">
+    <strong>Arrastra aquí las imágenes o una carpeta</strong>
+    <span class="status" id="queued">Ninguna imagen cargada</span>
+    <div class="row" style="justify-content:center">
+      <button type="button" id="pickFiles">Elegir imágenes</button>
+      <button type="button" id="pickFolder">Elegir carpeta</button>
+    </div>
+    <input type="file" id="fileIn" accept="image/*" multiple hidden>
+    <input type="file" id="folderIn" webkitdirectory multiple hidden>
+  </section>
+
+  <section class="panel">
+    <div class="row">
+      <button type="button" class="primary" id="run" disabled>Procesar</button>
+      <button type="button" id="zipBtn" disabled>Descargar ZIP</button>
+      <button type="button" id="reset">Vaciar</button>
+      <span class="toast" id="toast" aria-live="polite"></span>
+    </div>
+    <div class="bar"><i id="barFill"></i></div>
+    <p class="status" id="status">Carga imágenes para empezar.</p>
+    <div class="stats">
+      <div class="stat"><b id="sTotal">0</b><span>cargadas</span></div>
+      <div class="stat ok"><b id="sOk">0</b><span>en el ZIP</span></div>
+      <div class="stat bad"><b id="sBad">0</b><span>descartadas por tamaño</span></div>
+      <div class="stat warn"><b id="sWarn">0</b><span>posible recorte del círculo</span></div>
+      <div class="stat" id="stNoCsv" hidden><b id="sNoCsv">0</b><span>sin fila en el CSV</span></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="list-head">
+      <h2>Lista 1 · Descartadas por tamaño <span class="pill bad" id="cBad">0</span></h2>
+      <button type="button" id="copyBad" disabled>Copiar lista</button>
+    </div>
+    <p class="geo-note">No llegan al tamaño requerido o no se pudieron leer. No entran en el ZIP.</p>
+    <div class="tbl"><table><thead><tr><th>Archivo</th><th>Tamaño real</th><th>Motivo</th></tr></thead><tbody id="tBad"></tbody></table>
+    <div class="empty" id="eBad">Sin descartes por ahora.</div></div>
+  </section>
+
+  <section class="panel">
+    <div class="list-head">
+      <h2>Lista 2 · El recorte toca el círculo <span class="pill warn" id="cWarn">0</span></h2>
+      <button type="button" id="copyWarn" disabled>Copiar lista</button>
+    </div>
+    <p class="geo-note">Hay contenido distinto del fondo en las franjas que se eliminan (en rojo en la miniatura). Estas imágenes sí se procesan y están en el ZIP.</p>
+    <div class="tbl"><table><thead><tr><th>Vista</th><th>Nombre en el ZIP</th><th>Píxeles izq.</th><th>Píxeles der.</th></tr></thead><tbody id="tWarn"></tbody></table>
+    <div class="empty" id="eWarn">Sin avisos por ahora.</div></div>
+  </section>
+
+  <section class="panel" id="noCsvPanel" hidden>
+    <div class="list-head">
+      <h2>Lista 3 · Sin fila en el CSV <span class="pill" id="cNoCsv">0</span></h2>
+      <button type="button" id="copyNoCsv" disabled>Copiar lista</button>
+    </div>
+    <p class="geo-note">No se encontró su fila en el CSV, o la fila tiene vacío el ID o el NOMBRE. Están en el ZIP con su nombre original.</p>
+    <div class="tbl"><table><thead><tr><th>Archivo</th><th>Motivo</th></tr></thead><tbody id="tNoCsv"></tbody></table>
+    <div class="empty" id="eNoCsv">Todas las imágenes tienen su fila.</div></div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const IMG_EXT = /\.(png|jpe?g|webp|gif|bmp|tiff?|avif)$/i;
+let queue = [];          // {file, path}
+let outputs = [];        // {path, blob}
+let rejected = [];       // {path, w, h, reason}
+let warned = [];         // {path, left, right}
+let running = false;
+
+function params(){
+  const n = id => Math.max(0, Math.round(+$(id).value || 0));
+  return { reqW:n('reqW'), reqH:n('reqH'), exact:$('exact').checked, cropL:n('cropL'), cropR:n('cropR'),
+    tol:n('tol')||40, minPx:n('minPx')||1, outW:n('outW')||1, outH:n('outH')||1, bottom:n('bottom'),
+    fmt:$('fmt').value, bgMode:$('bgMode').value, bgColor:$('bgColor').value };
+}
+
+/* ---------- geometry preview ---------- */
+function layoutFor(W,H,p){
+  const sw = W - p.cropL - p.cropR;
+  const nh = Math.round(H * p.outW / sw);
+  const top = p.outH - p.bottom - nh;
+  return {sw, nh, top};
+}
+function renderGeo(){
+  const p = params(); const W=p.reqW, H=p.reqH;
+  const L = layoutFor(W,H,p);
+  const k = 0.34, gap = 70, x1 = 8, y0 = 22;
+  const x2 = x1 + W*k + gap;
+  const totalW = x2 + p.outW*k + 70, totalH = y0 + Math.max(H, p.outH, L.nh + Math.max(0,L.top)) * k + 26;
+  const svg = $('geo');
+  svg.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
+  svg.setAttribute('width', totalW); svg.setAttribute('height', totalH);
+  const imgY = y0 + L.top*k;
+  svg.innerHTML = `
+    <text x="${x1}" y="14">Original ${W}×${H}</text>
+    <rect x="${x1}" y="${y0}" width="${W*k}" height="${H*k}" fill="var(--img)"/>
+    <circle cx="${x1+W*k/2}" cy="${y0+H*k/2}" r="${Math.min(W,H)*k*0.42}" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+    <rect x="${x1}" y="${y0}" width="${p.cropL*k}" height="${H*k}" fill="var(--strip)"/>
+    <rect x="${x1+(W-p.cropR)*k}" y="${y0}" width="${p.cropR*k}" height="${H*k}" fill="var(--strip)"/>
+    <path d="M${x1+W*k+12} ${y0+H*k/2} h${gap-24}" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#ah)"/>
+    <defs><marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L8 4L0 8z" fill="var(--muted)"/></marker></defs>
+    <text x="${x2}" y="14">Lienzo ${p.outW}×${p.outH}</text>
+    <svg x="${x2}" y="${y0}" width="${p.outW*k}" height="${p.outH*k}" overflow="hidden">
+      <rect width="100%" height="100%" fill="var(--pad)"/>
+      <rect x="0" y="${L.top*k}" width="${p.outW*k}" height="${L.nh*k}" fill="var(--img)"/>
+      <circle cx="${p.outW*k/2}" cy="${(L.top+L.nh/2)*k}" r="${Math.min(L.sw,H)*(p.outW/L.sw)*k*0.42}" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+    </svg>
+    <rect x="${x2}" y="${y0}" width="${p.outW*k}" height="${p.outH*k}" fill="none" stroke="var(--fg)" stroke-width="1"/>
+    <text x="${x2+p.outW*k+6}" y="${y0+(p.outH-p.bottom/2)*k+4}">${p.bottom} px</text>
+    <text x="${x2+p.outW*k+6}" y="${y0+Math.max(L.top,0)/2*k+4}">${L.top} px</text>`;
+  const note = $('geoNote');
+  note.className = 'geo-note' + (L.top < 0 ? ' warn' : '');
+  note.textContent = `${W}×${H} → recorte a ${L.sw}×${H} → escalado a ${p.outW}×${L.nh} (×${(p.outW/L.sw).toFixed(4)}) → lienzo ${p.outW}×${p.outH} con ${p.bottom} px abajo y ${L.top} px arriba.` +
+    (L.top < 0 ? ` Con estos valores la imagen no cabe: se pierden ${-L.top} px por la parte superior.` : '');
+  $('stepsList').innerHTML = `
+    <li>Comprueba que mide ${p.exact?'exactamente':'al menos'} <span class="mono">${W}×${H}</span>. Si no, va a la lista 1 y se descarta.</li>
+    <li>Quita <span class="mono">${p.cropL}</span> px por la izquierda y <span class="mono">${p.cropR}</span> px por la derecha, sin deformar. Si en esas franjas hay algo distinto del fondo (el círculo), la apunta en la lista 2 y sigue.</li>
+    <li>Escala a <span class="mono">${p.outW}</span> px de ancho manteniendo la proporción.</li>
+    <li>Ajusta el lienzo a <span class="mono">${p.outH}</span> px de alto: <span class="mono">${p.bottom}</span> px libres abajo, el resto arriba.</li>
+    <li>Empaqueta todo en un ZIP con un informe de las dos listas.</li>`;
+}
+document.querySelectorAll('#settings input, #settings select').forEach(el => el.addEventListener('input', renderGeo));
+renderGeo();
+
+/* ---------- file intake ---------- */
+function addFiles(list){
+  for (const {file, path} of list){
+    if (!(file.type.startsWith('image/') || IMG_EXT.test(file.name))) continue;
+    queue.push({file, path: path || file.name});
+  }
+  updateQueued();
+  autoMatchColumn(); updateCsvPreview();
+}
+
+/* ---------- optional CSV renaming ---------- */
+let csv = null;            // {headers, rows}
+let csvMap = null;         // key -> row
+let matchTouched = false;
+let noCsv = [];            // {path, reason}
+function decodeText(buf){
+  try { return new TextDecoder('utf-8',{fatal:true}).decode(buf); }
+  catch { return new TextDecoder('windows-1252').decode(buf); }
+}
+function parseCsv(text){
+  text = text.replace(/^﻿/,'');
+  const first = text.split(/\r?\n/)[0] || '';
+  const delim = [';',',','\t','|'].map(d=>[d, first.split(d).length]).sort((a,b)=>b[1]-a[1])[0][0];
+  const rows=[]; let row=[], f='', q=false;
+  const pushRow = () => { row.push(f); f=''; if (row.some(v=>v.trim()!=='')) rows.push(row); row=[]; };
+  for (let i=0;i<text.length;i++){
+    const c=text[i];
+    if (q){ if (c==='"'){ if (text[i+1]==='"'){ f+='"'; i++; } else q=false; } else f+=c; }
+    else if (c==='"') q=true;
+    else if (c===delim){ row.push(f); f=''; }
+    else if (c==='\n' || c==='\r'){ if (c==='\r' && text[i+1]==='\n') i++; pushRow(); }
+    else f+=c;
+  }
+  if (f!=='' || row.length) pushRow();
+  const headers = (rows.shift()||[]).map(h=>h.trim());
+  return {headers, rows};
+}
+const norm = s => String(s??'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+const keyOf = s => norm(s).replace(IMG_EXT,'');
+const baseOf = p => p.split('/').pop();
+const cleanName = s => String(s).replace(/[\\/:*?"<>|\x00-\x1f]/g,'').replace(/\s+/g,' ').trim();
+
+function fillSelect(sel, headers, idx){
+  sel.innerHTML = headers.map((h,i)=>`<option value="${i}">${h ? h.replace(/[<&]/g,'') : 'Columna '+(i+1)}</option>`).join('');
+  if (idx >= 0) sel.value = idx;
+}
+function findHeader(tests){
+  const H = csv.headers.map(norm);
+  for (const t of tests){ const i = H.findIndex(t); if (i>=0) return i; }
+  return -1;
+}
+function autoMatchColumn(){
+  if (!csv || matchTouched) return;
+  let best = -1, bestN = 0;
+  if (queue.length){
+    const keys = new Set(queue.map(q=>keyOf(baseOf(q.path))));
+    csv.headers.forEach((_,c)=>{
+      let n=0; for (const r of csv.rows) if (keys.has(keyOf(r[c]))) n++;
+      if (n > bestN){ bestN=n; best=c; }
+    });
+  }
+  if (best < 0) best = findHeader([h=>/imagen|archivo|fichero|foto|file|image/.test(h)]);
+  if (best < 0) best = +$('colId').value;
+  $('colMatch').value = best;
+  buildCsvMap();
+}
+function buildCsvMap(){
+  csvMap = new Map();
+  if (!csv) return;
+  const c = +$('colMatch').value;
+  for (const r of csv.rows){ const k = keyOf(r[c]); if (k && !csvMap.has(k)) csvMap.set(k, r); }
+}
+/* -> {ok:true, path} | {ok:false, reason} | null when renaming is off */
+function renameFor(path){
+  if (!$('useCsv').checked || !csv) return null;
+  const row = csvMap.get(keyOf(baseOf(path)));
+  if (!row) return {ok:false, reason:'No aparece en el CSV'};
+  const id = cleanName(row[+$('colId').value]||''), nm = cleanName(row[+$('colName').value]||'');
+  if (!id || !nm) return {ok:false, reason: !id ? 'ID avatar vacío' : 'NOMBRE vacío'};
+  const dir = path.includes('/') ? path.slice(0, path.lastIndexOf('/')+1) : '';
+  return {ok:true, path: `${dir}${id}_${nm}.x`};
+}
+function updateCsvPreview(){
+  const on = $('useCsv').checked;
+  $('csvBody').hidden = !on;
+  const el = $('csvPreview'); el.className = 'geo-note';
+  if (!on || !csv){ el.textContent = on ? 'Carga el CSV para ver qué nombre tendrá cada imagen.' : ''; return; }
+  if (!queue.length){ el.textContent = 'Carga las imágenes para comprobar cuántas encuentran su fila.'; return; }
+  let ok=0, example=null;
+  for (const q of queue){ const r = renameFor(q.path); if (r && r.ok){ ok++; if (!example) example=[baseOf(q.path), baseOf(r.path).replace(/\.x$/,'')]; } }
+  el.textContent = `${ok} de ${queue.length} imágenes encuentran su fila en el CSV.` + (example ? ` Ejemplo: ${example[0]} → ${example[1]}.${$('fmt').value==='jpeg'?'jpg':$('fmt').value}` : '');
+  if (!ok) { el.className = 'geo-note bad'; el.textContent += ' Revisa la columna que coincide con el nombre de la imagen.'; }
+}
+$('useCsv').onchange = () => { updateCsvPreview(); };
+$('pickCsv').onclick = () => $('csvIn').click();
+$('csvIn').onchange = async e => {
+  const f = e.target.files[0]; e.target.value=''; if (!f) return;
+  try {
+    csv = parseCsv(decodeText(await f.arrayBuffer()));
+    if (!csv.headers.length || !csv.rows.length) throw new Error('vacío');
+  } catch { csv = null; $('csvInfo').textContent = 'No se pudo leer el CSV. Comprueba que la primera fila tiene los títulos de las columnas.'; $('csvCols').hidden = true; updateCsvPreview(); return; }
+  $('csvInfo').textContent = `${f.name} · ${csv.rows.length} filas · ${csv.headers.length} columnas`;
+  const idI = findHeader([h=>h.replace(/[\s_-]/g,'')==='idavatar', h=>h.includes('id') && h.includes('avatar'), h=>h==='id']);
+  const nmI = findHeader([h=>h==='nombre', h=>h.includes('nombre'), h=>h==='name']);
+  fillSelect($('colMatch'), csv.headers, -1);
+  fillSelect($('colId'), csv.headers, idI >= 0 ? idI : 0);
+  fillSelect($('colName'), csv.headers, nmI >= 0 ? nmI : Math.min(1, csv.headers.length-1));
+  $('csvCols').hidden = false; matchTouched = false;
+  autoMatchColumn(); updateCsvPreview();
+};
+$('colMatch').onchange = () => { matchTouched = true; buildCsvMap(); updateCsvPreview(); };
+$('colId').onchange = $('colName').onchange = updateCsvPreview;
+$('fmt').addEventListener('change', updateCsvPreview);
+
+function addNoCsv(n){
+  noCsv.push(n);
+  const tr = document.createElement('tr');
+  tr.innerHTML = '<td class="name"></td><td></td>';
+  tr.children[0].textContent = n.path; tr.children[1].textContent = n.reason;
+  $('tNoCsv').appendChild(tr); $('eNoCsv').hidden = true;
+  $('cNoCsv').textContent = $('sNoCsv').textContent = noCsv.length; $('copyNoCsv').disabled = false;
+}
+function updateQueued(){
+  $('queued').textContent = queue.length ? `${queue.length} imágenes cargadas` : 'Ninguna imagen cargada';
+  $('sTotal').textContent = queue.length;
+  $('run').disabled = running || !queue.length;
+  if (!running) $('status').textContent = queue.length ? 'Listo para procesar.' : 'Carga imágenes para empezar.';
+}
+$('pickFiles').onclick = () => $('fileIn').click();
+$('pickFolder').onclick = () => $('folderIn').click();
+$('fileIn').onchange = e => { addFiles([...e.target.files].map(f => ({file:f, path:f.name}))); e.target.value=''; };
+$('folderIn').onchange = e => { addFiles([...e.target.files].map(f => ({file:f, path:f.webkitRelativePath||f.name}))); e.target.value=''; };
+const drop = $('drop');
+['dragenter','dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', async e => {
+  const items = [...(e.dataTransfer.items||[])];
+  const entries = items.map(i => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean);
+  if (!entries.length){ addFiles([...e.dataTransfer.files].map(f => ({file:f, path:f.name}))); return; }
+  const found = [];
+  async function walk(entry, prefix){
+    if (entry.isFile){ const f = await new Promise((res,rej)=>entry.file(res,rej)); found.push({file:f, path:prefix+f.name}); }
+    else if (entry.isDirectory){
+      const reader = entry.createReader(); let batch;
+      do { batch = await new Promise((res,rej)=>reader.readEntries(res,rej)); for (const c of batch) await walk(c, prefix+entry.name+'/'); } while (batch.length);
+    }
+  }
+  $('queued').textContent = 'Leyendo carpeta…';
+  for (const en of entries) await walk(en, '');
+  addFiles(found);
+});
+
+/* ---------- processing ---------- */
+const hasOffscreen = typeof OffscreenCanvas !== 'undefined';
+function canvas(w,h){ if (hasOffscreen) return new OffscreenCanvas(w,h); const c=document.createElement('canvas'); c.width=w; c.height=h; return c; }
+function toBlob(c, type, q){
+  if (c.convertToBlob) return c.convertToBlob({type, quality:q});
+  return new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('blob')), type, q));
+}
+function bgOf(ctx,W,H){
+  const pts=[[0,0],[W-1,0],[0,H-1],[W-1,H-1]].map(([x,y])=>ctx.getImageData(x,y,1,1).data);
+  if (pts.some(d=>d[3]<128)) return {alpha:true};
+  const avg=i=>pts.reduce((s,d)=>s+d[i],0)/4;
+  return {alpha:false, r:avg(0), g:avg(1), b:avg(2)};
+}
+function countContent(d,bg,tol){
+  let n=0;
+  for (let i=0;i<d.length;i+=4){
+    if (bg.alpha){ if (d[i+3] > 32) n++; }
+    else if (d[i+3] > 32 && Math.max(Math.abs(d[i]-bg.r),Math.abs(d[i+1]-bg.g),Math.abs(d[i+2]-bg.b)) > tol) n++;
+  }
+  return n;
+}
+const usedNames = new Set();
+function outName(path, ext){
+  let base = path.replace(/\.[^./]+$/, '');
+  let name = `${base}.${ext}`, i = 2;
+  while (usedNames.has(name.toLowerCase())) name = `${base}_${i++}.${ext}`;
+  usedNames.add(name.toLowerCase());
+  return name;
+}
+
+async function processOne(item, p){
+  let bmp;
+  // Premultiplied decode: transparent pixels then weigh nothing when resampling, so no dark fringe.
+  try { bmp = await createImageBitmap(item.file, {colorSpaceConversion:'none', premultiplyAlpha:'premultiply'}); }
+  catch { addRejected({path:item.path, w:null, h:null, reason:'No se pudo leer'}); return; }
+  const W=bmp.width, H=bmp.height;
+  const okSize = p.exact ? (W===p.reqW && H===p.reqH) : (W>=p.reqW && H>=p.reqH);
+  if (!okSize){ addRejected({path:item.path, w:W, h:H, reason: p.exact ? 'No es el tamaño exacto' : 'Más pequeña que el mínimo'}); bmp.close(); return; }
+
+  // circle check on the strips that will be removed
+  const src = canvas(W,H); const sctx = src.getContext('2d',{willReadFrequently:true});
+  sctx.drawImage(bmp,0,0);
+  const bg = bgOf(sctx,W,H);
+  const left  = p.cropL ? countContent(sctx.getImageData(0,0,p.cropL,H).data, bg, p.tol) : 0;
+  const right = p.cropR ? countContent(sctx.getImageData(W-p.cropR,0,p.cropR,H).data, bg, p.tol) : 0;
+  const touches = left >= p.minPx || right >= p.minPx;
+
+  // crop + scale + place on canvas in a single resample
+  const L = layoutFor(W,H,p);
+  const out = canvas(p.outW, p.outH); const octx = out.getContext('2d');
+  if (p.bgMode==='color' || p.fmt==='jpeg'){ octx.fillStyle = p.bgColor; octx.fillRect(0,0,p.outW,p.outH); }
+  octx.imageSmoothingEnabled = true; octx.imageSmoothingQuality = 'high';
+  octx.drawImage(src, p.cropL, 0, L.sw, H, 0, L.top, p.outW, L.nh);
+  bmp.close();
+  const ext = p.fmt==='jpeg' ? 'jpg' : p.fmt;
+  const blob = await toBlob(out, 'image/'+p.fmt, 0.95);
+  const rn = renameFor(item.path);
+  if (rn && !rn.ok) addNoCsv({path:item.path, reason:rn.reason});
+  const zipPath = outName(rn && rn.ok ? rn.path : item.path, ext);
+  outputs.push({orig:item.path, path: zipPath, blob});
+  if (touches) addWarned({path:zipPath, orig:item.path, left, right}, src, W, H, p);
+}
+
+function addRejected(r){
+  rejected.push(r);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td class="name"></td><td class="num">${r.w?`${r.w}×${r.h}`:'—'}</td><td></td>`;
+  tr.children[0].textContent = r.path; tr.children[2].textContent = r.reason;
+  $('tBad').appendChild(tr); $('eBad').hidden = true;
+  $('cBad').textContent = $('sBad').textContent = rejected.length; $('copyBad').disabled = false;
+}
+function addWarned(w, src, W, H, p){
+  warned.push(w);
+  const tw = 64, th = Math.round(H*tw/W);
+  const c = document.createElement('canvas'); c.width=tw; c.height=th;
+  const x = c.getContext('2d'); x.drawImage(src,0,0,tw,th);
+  x.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--strip') || 'rgba(214,40,40,.55)';
+  x.fillRect(0,0,Math.max(1,p.cropL*tw/W),th); x.fillRect(tw-Math.max(1,p.cropR*tw/W),0,tw,th);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td></td><td class="name"></td><td class="num">${w.left}</td><td class="num">${w.right}</td>`;
+  tr.children[0].appendChild(c);
+  const nm = document.createElement('div'); nm.textContent = w.path; tr.children[1].appendChild(nm);
+  if (w.orig !== w.path){ const o = document.createElement('div'); o.className = 'orig'; o.textContent = 'Original: ' + w.orig; tr.children[1].appendChild(o); }
+  $('tWarn').appendChild(tr); $('eWarn').hidden = true;
+  $('cWarn').textContent = $('sWarn').textContent = warned.length; $('copyWarn').disabled = false;
+}
+
+function clearResults(){
+  outputs=[]; rejected=[]; warned=[]; noCsv=[]; usedNames.clear();
+  $('tBad').innerHTML=''; $('tWarn').innerHTML=''; $('tNoCsv').innerHTML='';
+  $('eBad').hidden=false; $('eWarn').hidden=false; $('eNoCsv').hidden=false;
+  ['cBad','sBad','cWarn','sWarn','sOk','cNoCsv','sNoCsv'].forEach(id=>$(id).textContent='0');
+  $('copyBad').disabled=$('copyWarn').disabled=$('copyNoCsv').disabled=$('zipBtn').disabled=true;
+  $('barFill').style.width='0'; $('toast').textContent='';
+}
+
+$('run').onclick = async () => {
+  if (running || !queue.length) return;
+  const renaming = $('useCsv').checked;
+  if (renaming && !csv){ $('status').textContent = 'Has activado el renombrado con CSV: carga el CSV o desactívalo para continuar.'; return; }
+  running = true; clearResults();
+  $('noCsvPanel').hidden = $('stNoCsv').hidden = !renaming;
+  $('run').disabled = true; $('reset').disabled = true;
+  const p = params(); const total = queue.length; let done = 0, idx = 0;
+  const t0 = performance.now();
+  async function worker(){
+    while (idx < total){
+      const item = queue[idx++];
+      try { await processOne(item, p); } catch(e){ addRejected({path:item.path,w:null,h:null,reason:'Error al procesar'}); }
+      done++;
+      if (done % 5 === 0 || done === total){
+        $('barFill').style.width = (done/total*100)+'%';
+        $('status').textContent = `Procesando ${done} de ${total}…`;
+        $('sOk').textContent = outputs.length;
+      }
+    }
+  }
+  await Promise.all(Array.from({length:4}, worker));
+  const secs = ((performance.now()-t0)/1000).toFixed(1);
+  $('sOk').textContent = outputs.length;
+  $('status').textContent = `Terminado en ${secs} s: ${outputs.length} imágenes listas, ${rejected.length} descartadas, ${warned.length} con aviso de círculo` + (renaming ? `, ${noCsv.length} sin fila en el CSV.` : '.');
+  running = false; $('reset').disabled = false; $('run').disabled = false;
+  $('zipBtn').disabled = !outputs.length;
+};
+
+/* ---------- reports, zip, download ---------- */
+const csvCell = s => `"${String(s).replace(/"/g,'""')}"`;
+function badCsv(){ return 'archivo;ancho;alto;motivo\n' + rejected.map(r=>[r.path,r.w??'',r.h??'',r.reason].map(csvCell).join(';')).join('\n'); }
+function warnCsv(){ return 'archivo_zip;archivo_original;pixeles_izquierda;pixeles_derecha\n' + warned.map(w=>[w.path,w.orig,w.left,w.right].map(csvCell).join(';')).join('\n'); }
+
+let downloadsP = null;
+function getDownloads(){
+  if (!downloadsP) downloadsP = (window.claude && window.claude.use) ? window.claude.use('downloads').catch(()=>null) : Promise.resolve(null);
+  return downloadsP;
+}
+getDownloads();
+
+async function save(filename, blob){
+  const dl = await getDownloads();
+  if (dl){
+    try { await dl.save({filename, data:blob}); $('toast').textContent = `Descargado: ${filename}`; }
+    catch(e){ $('toast').textContent = e && e.code==='declined' ? 'Descarga cancelada.' : 'No se pudo descargar en esta vista.'; }
+    return;
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 60000);
+  $('toast').textContent = `Descargado: ${filename}`;
+}
+
+$('zipBtn').onclick = async () => {
+  if (!outputs.length) return;
+  $('zipBtn').disabled = true; $('toast').textContent = '';
+  const zip = new JSZip();
+  for (const o of outputs) zip.file(o.path, o.blob, {compression:'STORE'});
+  const bom = '﻿';
+  zip.file('_informe/lista1_descartadas_tamano.csv', bom+badCsv());
+  zip.file('_informe/lista2_aviso_circulo.csv', bom+warnCsv());
+  if (!$('noCsvPanel').hidden){
+    zip.file('_informe/lista3_sin_fila_csv.csv', bom+'archivo;motivo\n'+noCsv.map(n=>[n.path,n.reason].map(csvCell).join(';')).join('\n'));
+    zip.file('_informe/renombrados.csv', bom+'archivo_original;archivo_nuevo\n'+outputs.map(o=>[o.orig,o.path].map(csvCell).join(';')).join('\n'));
+  }
+  const blob = await zip.generateAsync({type:'blob', streamFiles:true}, m => {
+    $('barFill').style.width = m.percent+'%'; $('status').textContent = `Creando ZIP… ${Math.round(m.percent)} %`;
+  });
+  const d = new Date(), pad = n => String(n).padStart(2,'0');
+  const name = `recortes_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.zip`;
+  $('status').textContent = `ZIP listo (${(blob.size/1048576).toFixed(1)} MB, ${outputs.length} imágenes).`;
+  await save(name, blob);
+  $('zipBtn').disabled = false;
+};
+
+async function copyText(text, btn){
+  const old = btn.textContent;
+  try { await navigator.clipboard.writeText(text); btn.textContent = 'Copiada'; }
+  catch {
+    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); btn.textContent = 'Copiada'; } catch { btn.textContent = 'Selecciona y copia'; }
+    ta.remove();
+  }
+  setTimeout(()=>btn.textContent = old, 1600);
+}
+$('copyBad').onclick = e => copyText(rejected.map(r=>`${r.path}\t${r.w?r.w+'x'+r.h:'-'}\t${r.reason}`).join('\n'), e.currentTarget);
+$('copyWarn').onclick = e => copyText(warned.map(w=>`${w.path}\tizq ${w.left}\tder ${w.right}`).join('\n'), e.currentTarget);
+$('copyNoCsv').onclick = e => copyText(noCsv.map(n=>`${n.path}\t${n.reason}`).join('\n'), e.currentTarget);
+$('reset').onclick = () => { if (running) return; queue=[]; clearResults(); updateQueued(); updateCsvPreview(); };
+</script>
+
+</body></html>
