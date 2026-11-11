@@ -1,7 +1,79 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Claude artefactos XD</title>
-<style>body{font:16px/1.5 system-ui,sans-serif;max-width:640px;margin:48px auto;padding:0 16px;background:#0c0d11;color:#e7e8ef}a{color:#a5a3f5}li{margin:8px 0}</style></head>
-<body><h1>Claude artefactos · XD</h1><ul>
-<li><a href="polaris-movil-tablet/">Artefacto móvil y tablet – POLARIS</a></li>
-<li><a href="nueva-tab/">Aplicación móvil – NUEVA TAB</a></li>
-<li><a href="recorte-avatares/">Plugin recorte AVATARES BOB-BBOB</a></li>
-</ul></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Artefactos XD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#0c0d11;--grid:#16171e;--card:#13141a;--line:#2a2c38;--text:#e7e8ef;--muted:#8d90a6;--accent:#a5a3f5;
+  --sans:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font:16px/1.5 var(--sans);color:var(--text);
+  background:radial-gradient(ellipse at 50% 0%,rgba(165,163,245,.08),transparent 60%),
+    linear-gradient(var(--grid) 1px,transparent 1px) 0 0/32px 32px,
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/32px 32px,var(--bg)}
+.wrap{max-width:960px;margin:0 auto;padding:56px 16px 72px}
+.eyebrow{font:500 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+h1{font-weight:600;font-size:clamp(2rem,5vw,2.8rem);line-height:1.1;margin:0 0 12px;letter-spacing:-.02em}
+.sub{color:var(--muted);max-width:56ch;margin:0 0 40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));gap:16px;list-style:none;padding:0;margin:0}
+.card{display:flex;flex-direction:column;gap:10px;height:100%;padding:22px;border:1px solid var(--line);border-radius:16px;
+  background:var(--card);color:inherit;text-decoration:none;transition:border-color .2s,transform .2s}
+.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.num{font:500 12px var(--mono);color:var(--muted)}
+.card h2{font-size:1.2rem;font-weight:600;margin:0}
+.card p{margin:0;color:var(--muted);font-size:.95rem}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:8px}
+.tags span{font:500 11px var(--mono);padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.go{font-weight:500;color:var(--accent);font-size:.9rem}
+footer{margin-top:48px;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:16px}
+@media (prefers-reduced-motion:reduce){.card{transition:none}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <p class="eyebrow">eXperience Design · Entretenimiento</p>
+  <h1>Artefactos XD</h1>
+  <p class="sub">Prototipos interactivos y herramientas del equipo. Cada uno es una página autocontenida que se abre en el navegador.</p>
+
+  <ul class="grid">
+    <li><a class="card" href="polaris-movil-tablet/">
+      <span class="num">01</span>
+      <h2>Polaris móvil y tablet</h2>
+      <p>Simulador de la app en móvil y tablet, vertical y horizontal, con colecciones Polaris y cuadro de mandos para ajustar el diseño.</p>
+      <div class="tags"><span>Prototipo</span><span>Polaris</span><span>Responsive</span></div>
+      <span class="go">Abrir →</span>
+    </a></li>
+    <li><a class="card" href="nueva-tab/">
+      <span class="num">02</span>
+      <h2>App móvil · Nueva tab bar</h2>
+      <p>Simulador BBOB Mobile con la nueva navegación inferior tipo cristal, plegado al hacer scroll y página de perfil.</p>
+      <div class="tags"><span>Prototipo</span><span>Navegación</span><span>BBOB</span></div>
+      <span class="go">Abrir →</span>
+    </a></li>
+    <li><a class="card" href="webgl-shaders/">
+      <span class="num">03</span>
+      <h2>Carrusel WebGL TV</h2>
+      <p>Exploración de carrusel para TV con WebGL y shaders: transiciones y efectos sobre las portadas.</p>
+      <div class="tags"><span>Prototipo</span><span>TV</span><span>WebGL</span></div>
+      <span class="go">Abrir →</span>
+    </a></li>
+    <li><a class="card" href="recorte-avatares/">
+      <span class="num">04</span>
+      <h2>Recorte de avatares BOB-BBOB</h2>
+      <p>Procesa cientos de avatares a 392×536 en el navegador, avisa si el recorte toca el círculo, renombra con CSV y descarga un ZIP.</p>
+      <div class="tags"><span>Herramienta</span><span>Avatares</span><span>Lotes</span></div>
+      <span class="go">Abrir →</span>
+    </a></li>
+  </ul>
+
+  <footer>Equipo XD · Polaris. Algunas funciones que dependen de Claude solo están disponibles dentro de claude.ai.</footer>
+</main>
+</body>
+</html>
