@@ -401,6 +401,14 @@
         <button class="b" id="reset">Restablecer valores</button>
       </div>
       <label class="check"><input type="checkbox" id="guides"> Mostrar guías de posición</label>
+      <h3 style="margin-top:18px">Configuración actual</h3>
+      <textarea id="cfgText" spellcheck="false" style="width:100%;height:150px;background:#101010;color:#dcdcdc;border:1px solid var(--line);border-radius:8px;padding:10px;font:12px/1.5 ui-monospace,Menlo,monospace;resize:vertical"></textarea>
+      <div class="btns">
+        <button class="b pri" id="copyCfg2">Copiar configuración</button>
+        <button class="b" id="applyCfg">Aplicar la pegada</button>
+        <span class="copied" id="copied2">Copiado</span>
+      </div>
+      <small style="color:var(--muted);font-size:12px">Si el botón no puede copiar, el texto queda seleccionado: cópialo con Ctrl/Cmd+C. Para cargar otra configuración, pégala aquí y pulsa «Aplicar la pegada».</small>
     </div>
 
     <div class="card">
@@ -806,6 +814,7 @@
   function syncInputs() {
     keys.forEach(k => { $(k).value = cfg[k]; $(k+'N').value = cfg[k]; });
     $('ease').value = cfg.ease;
+    if (document.activeElement !== $('cfgText')) $('cfgText').value = JSON.stringify(cfg, null, 2);
     $('tbOnlyTop').checked = !!cfg.tbOnlyTop;
     document.querySelectorAll('#modeSeg button').forEach(b => b.classList.toggle('on', b.dataset.m === cfg.mode));
     $('phone').classList.toggle('real', cfg.mode === 'real');
@@ -877,6 +886,20 @@
   $('reset').addEventListener('click', () => { Object.assign(cfg, DEFAULTS); syncInputs(); save(); onScroll(); });
   $('jTop').addEventListener('click', () => { scroller.scrollTop = 0; });
   $('guides').addEventListener('change', e => $('phone').classList.toggle('guides', e.target.checked));
+  $('copyCfg2').addEventListener('click', async () => {
+    const t = $('cfgText'); t.value = JSON.stringify(cfg, null, 2);
+    try { await navigator.clipboard.writeText(t.value); const c = $('copied2'); c.style.opacity = 1; setTimeout(() => c.style.opacity = 0, 1200); }
+    catch (e) { t.focus(); t.select(); }
+  });
+  $('applyCfg').addEventListener('click', () => {
+    try {
+      const v = JSON.parse($('cfgText').value);
+      Object.keys(DEFAULTS).forEach(k => { if (k in v) cfg[k] = v[k]; });
+      cfg.dStatus = Math.min(64, cfg.dStatus);
+      $('cfgText').blur(); syncInputs(); save(); toHash();
+      scroller.scrollTop = 0; lastY = 0; uT = 0; u = 0; fit(); syncInputs(); render();
+    } catch (e) { $('cfgText').style.borderColor = '#e5484d'; setTimeout(() => $('cfgText').style.borderColor = '', 1500); }
+  });
   $('copyCfg').addEventListener('click', async () => {
     try { await navigator.clipboard.writeText(JSON.stringify(cfg, null, 2)); const c = $('copied'); c.style.opacity = 1; setTimeout(() => c.style.opacity = 0, 1200); } catch (e) {}
   });
