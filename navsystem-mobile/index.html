@@ -511,9 +511,9 @@
 
 <script>
 (() => {
-  const DEFAULTS = { dStatus: 40, dBlur: 48, dReveal: 106, tReveal: 350, ease: 'linear', mode: 'layout', orient: 'v', tbOnlyTop: false, page: 'home', os: 'android' };
+  const DEFAULTS = { dStatus: 64, dBlur: 130, dReveal: 100, tReveal: 690, ease: 'linear', mode: 'layout', orient: 'v', tbOnlyTop: true, page: 'home', os: 'ios' };   // configuración de David (27/11)
   const cfg = { ...DEFAULTS };
-  try { const saved = JSON.parse(localStorage.getItem('navsys-cfg-v5') || '{}'); Object.assign(cfg, saved); cfg.dStatus = Math.min(64, cfg.dStatus); } catch (e) {}
+  try { const saved = JSON.parse(localStorage.getItem('navsys-cfg-v6') || '{}'); Object.assign(cfg, saved); cfg.dStatus = Math.min(64, cfg.dStatus); } catch (e) {}
 
   let STATUS_H = 42;                              // 0 en iOS horizontal: sin StatusBar
   let TOPBAR_H = 64, FILTER_TOP = 106, TB_OUT = 106;   // Buscador: SearchTabs 40 + SearchInput 80
@@ -858,7 +858,7 @@
     const rc = document.querySelector('.real-c'); rc.style.setProperty('--k', (content.clientWidth || (land ? 800 : 360)) / (land ? 800 : 360));
     $('pseudo').textContent = pseudo();
   }
-  function save() { try { const c = { ...cfg }; if (document.body.classList.contains('fs')) delete c.orient; localStorage.setItem('navsys-cfg-v5', JSON.stringify(c)); } catch (e) {} }
+  function save() { try { const c = { ...cfg }; if (document.body.classList.contains('fs')) delete c.orient; localStorage.setItem('navsys-cfg-v6', JSON.stringify(c)); } catch (e) {} }
   keys.forEach(k => {
     const set = v => { const n = Number(v); if (!isFinite(n)) return; cfg[k] = Math.min(Number($(k).max), Math.max(Number($(k).min), n)); syncInputs(); save(); onScroll(); };
     $(k).addEventListener('input', e => set(e.target.value));
