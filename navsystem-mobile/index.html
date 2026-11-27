@@ -69,6 +69,8 @@
   .index-v h1{font-size:22px;margin:0 0 4px}
   .index-v .sub{margin-bottom:20px}
   .index-v h2{margin:22px 0 10px}
+  .idx-opt{display:inline-flex;margin:0 0 6px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);font-size:15px}
+  .idx-opt input{width:18px;height:18px;accent-color:var(--accent)}
   .idx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
   .idx-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
   .idx-card b{display:block;font-size:15px;margin-bottom:8px}
@@ -816,6 +818,7 @@
     $('ease').value = cfg.ease;
     if (document.activeElement !== $('cfgText')) $('cfgText').value = JSON.stringify(cfg, null, 2);
     $('tbOnlyTop').checked = !!cfg.tbOnlyTop;
+    if ($('idxOnlyTop')) $('idxOnlyTop').checked = !!cfg.tbOnlyTop;
     document.querySelectorAll('#modeSeg button').forEach(b => b.classList.toggle('on', b.dataset.m === cfg.mode));
     $('phone').classList.toggle('real', cfg.mode === 'real');
     document.querySelectorAll('#orientSeg button').forEach(b => b.classList.toggle('on', b.dataset.o === cfg.orient));
@@ -943,8 +946,9 @@ TopBar.content.opacity = 1 − clamp((u − 16) / 48)   // detrás de la StatusB
   // Móvil: pantalla completa, sin panel ni marco; el giro lo marca el propio dispositivo.
   const mqMobile = window.matchMedia('(pointer: coarse) and (max-width: 1000px), (max-width: 520px)');
   let fsOrient = null;
+  let forcedFs = false;                              // enlaces del índice (…-full): pantalla completa en cualquier dispositivo
   function applyFullscreen() {
-    const fs = mqMobile.matches;
+    const fs = mqMobile.matches || forcedFs;
     document.body.classList.toggle('fs', fs);
     if (!fs) { if (fsOrient) { fsOrient = null; syncInputs(); } return; }
     const o = window.innerWidth > window.innerHeight ? 'h' : 'v';
@@ -979,9 +983,10 @@ TopBar.content.opacity = 1 − clamp((u − 16) / 48)   // detrás de la StatusB
     // Índice: con #index, o en móvil a pantalla completa sin enlace concreto
     const showIdx = h === 'index' || (h === '' && mqMobile.matches);
     document.body.classList.toggle('idx', showIdx);
-    if (showIdx) return;
-    const [pg, md, os] = h.split('-');
-    let changed = false;
+    if (showIdx) { if (forcedFs) { forcedFs = false; fit(); } return; }
+    const [pg, md, os, full] = h.split('-');
+    const wasForced = forcedFs; forcedFs = full === 'full';
+    let changed = forcedFs !== wasForced;
     if (['android', 'ios'].includes(os) && os !== cfg.os) { cfg.os = os; changed = true; }
     if (['home', 'section', 'detail', 'search'].includes(pg) && pg !== cfg.page) { cfg.page = pg; changed = true; }
     if (['layout', 'real'].includes(md) && md !== cfg.mode) { cfg.mode = md; changed = true; }
@@ -989,13 +994,22 @@ TopBar.content.opacity = 1 − clamp((u − 16) / 48)   // detrás de la StatusB
   }
   function toHash() { try { history.replaceState(null, '', '#' + cfg.page + '-' + cfg.mode + '-' + cfg.os); } catch (e) {} }
 
-  // Índice de enlaces (pensado para abrir desde el móvil a pantalla completa)
+  // Índice de enlaces: todos abren el prototipo a pantalla completa (…-full)
   (() => {
     const pages = [['home', 'Home'], ['section', 'Section'], ['detail', 'Detail'], ['search', 'Buscador']];
     const block = (os, label) => `<h2>${label}</h2><div class="idx-grid">` + pages.map(([p, n]) =>
-      `<div class="idx-card"><b>${n}</b><a href="#${p}-layout-${os}">Layout</a><a class="real" href="#${p}-real-${os}">Real</a></div>`).join('') + '</div>';
+      `<div class="idx-card"><b>${n}</b><a href="#${p}-layout-${os}-full">Layout</a><a class="real" href="#${p}-real-${os}-full">Real</a></div>`).join('') + '</div>';
     $('indexV').innerHTML = '<h1>NavSystem Mobile · Índice</h1><p class="sub">Toca una opción para abrirla a pantalla completa. El giro sigue al dispositivo. Para volver aquí, usa «atrás» del navegador o abre el enlace con #index.</p>' +
+      '<label class="check idx-opt"><input type="checkbox" id="idxOnlyTop"> La TopBar solo vuelve al llegar arriba</label>' +
       block('android', 'Android') + block('ios', 'iOS');
+    $('idxOnlyTop').checked = !!cfg.tbOnlyTop;
+    $('idxOnlyTop').addEventListener('change', e => { cfg.tbOnlyTop = e.target.checked; syncInputs(); save(); });
+    // Pantalla completa del navegador al abrir una opción (donde el navegador lo permita)
+    $('indexV').addEventListener('click', e => {
+      if (!e.target.closest('a')) return;
+      const el = document.documentElement, rq = el.requestFullscreen || el.webkitRequestFullscreen;
+      try { const r = rq && rq.call(el); if (r && r.catch) r.catch(() => {}); } catch (_) {}
+    });
   })();
   window.addEventListener('hashchange', fromHash);
   fromHash();

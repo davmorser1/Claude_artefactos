@@ -8,7 +8,7 @@ Prototipos y herramientas del equipo de eXperience Design (Entretenimiento). Por
 | `nueva-tab/` | Simulador BBOB Mobile con la nueva tab bar |
 | `webgl-shaders/` | Carrusel WebGL para TV con shaders |
 | `recorte-avatares/` | Recorte por lotes de avatares BOB-BBOB a 392×536, con informe y renombrado por CSV |
-| `navsystem-mobile/` | NavSystem Mobile: cabecera y FilterSet ligados al scroll (Home, Section, Detail, Buscador · Android/iOS). Índice móvil en `navsystem-mobile/#index` |
+| `navsystem-mobile/` | NavSystem Mobile: cabecera y FilterSet ligados al scroll (Home, Section, Detail, Buscador · Android/iOS). Índice en `navsystem-mobile/#index`: todas las opciones abren a pantalla completa |
 
 Cada carpeta es una página HTML autocontenida.
 
